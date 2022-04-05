@@ -19,15 +19,14 @@
                 <a class="nav-link" href="#">Sign In</a>
               </li>
             </ul>
-            <button class="btn btn-outline-success my-2 my-sm-0" onclick="loadMore()">Load More</button>
-            
+            <span>
+              <input type="text" id="searchItem" /> 
+              <button onclick="search()" placeholder="Search for a Gif Cateogory" class="btn btn-outline-success my-2 my-sm-0">search</button>
+            </span>
           </div>
         </nav> 
-        <span>
-          <input type="text" id="searchItem" /> 
-          <button onclick="search()">search</button>
-        </span>
         <div id="gifgrid">
         </div>
+        <button class="btn btn-outline-success my-2 my-sm-0" style="margin:center;" onclick="loadMore()">Load More</button>
     </body>
 </html>
