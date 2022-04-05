@@ -1,42 +1,42 @@
-import { throttle } from 'throttle-debounce'
-import { renderGrid } from '@giphy/js-components'
-import { GiphyFetch } from '@giphy/js-fetch-api'
+const grid = document.getElementById('gifgrid')
+let currentOffset = 0
+let limit = 10
 
-// create a GiphyFetch with your api key
-// apply for a new Web SDK key. Use a separate key for every platform (Android, iOS, Web)
-const gf = new GiphyFetch(wRxWEThjaTTrsDuk9R0pkj23o5Jxi0mE)
-// create a fetch gifs function that takes an offset
-// this will allow the grid to paginate as the user scrolls
-const fetchGifs = (offset: number) => {
-    // use whatever end point you want,
-    // but be sure to pass offset to paginate correctly
-    return gf.trending({ offset, limit: 25 })
+function trending() {
+  fetchGifs('trending','')
 }
 
-// Creating a grid with window resizing and remove-ability
-const makeGrid = (targetEl: HTMLElement) => {
-    const render = () => {
-        // here is the @giphy/js-components import
-        return renderGrid(
-            {
-                width: innerWidth,
-                fetchGifs,
-                columns: width < 500 ? 2 : 3,
-                gutter: 6,
-            },
-            targetEl
-        )
-    }
-    const resizeRender = throttle(500, render)
-    window.addEventListener('resize', resizeRender, false)
-    const remove = render()
-    return { 
-        remove: () => {
-            remove()
-            window.removeEventListener('resize', resizeRender, false)
-        },
+function search() {
+    const searchItem = document.getElementById('searchItem').value
+    if (searchItem) {
+      grid.textContent = ''
+      fetchGifs('search',`q=${searchItem}`)
     }
 }
 
-// Instantiate
-const grid = makeGrid(document.querySelector('.gifgrid'))
+function loadMore(){
+  currentOffset += limit
+  const searchItem = document.getElementById('searchItem').value
+  if (searchItem) {
+    fetchGifs('search',`q=${searchItem}&offset=${currentOffset}`)
+  } else {
+    fetchGifs('trending',`offset=${currentOffset}`)
+  }
+}
+
+function fetchGifs(endpoint, query){
+  const apiKey = 'wRxWEThjaTTrsDuk9R0pkj23o5Jxi0mE'
+  console.log(`query -> https://api.giphy.com/v1/gifs/${endpoint}?api_key=${apiKey}&limit=${limit}&${query}`)
+  fetch(`https://api.giphy.com/v1/gifs/${endpoint}?api_key=${apiKey}&limit=${limit}&${query}`)
+  .then(response => response.json())
+  .then(json => {
+    json.data
+      .map(gif => gif.images.fixed_height.url)
+      .forEach(url => {
+        let img = document.createElement('img')
+        img.src = url
+        grid.appendChild(img)
+      })
+  })
+  .catch(error => grid.appendChild = error)
+}
